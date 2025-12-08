@@ -1,3 +1,4 @@
+import simulationData as sd
 class NFA:
     def __init__(self, alphabet: list[str], numStates: int,
                  startStates: list[int], finalStates: list[int],
@@ -9,11 +10,9 @@ class NFA:
         self.finalStates = finalStates
         self.transitions = transitions
         self.currentStates = set(startStates)
-
-        # Initialize with lambda-closure(start states)
         self.reset()
 
-    # λ-closure (using '#' instead of λ)
+    # lampda-closure (using '#' instead of its symbol)
     def lambdaClosure(self, states: set[int]) -> set[int]:
         stack = list(states)
         closure = set(states)
@@ -48,3 +47,22 @@ class NFA:
 
     def isAccepted(self):
         return any(state in self.finalStates for state in self.currentStates)
+    
+    def getCurrentStates(self) -> set[int]:
+        return self.currentStates
+    
+    # # This is the main function it will receive the input string and process it
+    def processString(self, inputString):
+        self.reset()
+        simulation = sd.SimulationData()
+        step = 0
+        # Record initial state
+        print(f"Step {step}: Initial state: {self.currentStates}, accepted: {self.isAccepted()}")
+        simulation.recordMove(None, set(), self.currentStates.copy(), self.isAccepted(), step)
+        for symbol in inputString:
+            step += 1
+            fromStates = self.currentStates.copy()
+            self.move(symbol)
+            print(f"Step {step}: Processing '{symbol}': from {fromStates} to {self.currentStates}, accepted: {self.isAccepted()}")
+            simulation.recordMove(symbol, fromStates, self.currentStates.copy(), self.isAccepted(), step)
+        return simulation
