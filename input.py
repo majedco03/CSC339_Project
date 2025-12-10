@@ -329,6 +329,22 @@ class NFAInputGUI:
             final_states = parse_int_list(self.final_states_entry.get())
             transitions = parse_transitions(self.transitions_text.get("1.0", tk.END))
 
+            # Validation
+            for state in start_states:
+                if not (0 <= state < num_states):
+                    raise ValueError(f"Start state {state} is out of range [0, {num_states-1}]")
+            for state in final_states:
+                if not (0 <= state < num_states):
+                    raise ValueError(f"Final state {state} is out of range [0, {num_states-1}]")
+            for (from_state, symbol), to_states in transitions.items():
+                if not (0 <= from_state < num_states):
+                    raise ValueError(f"From state {from_state} in transition is out of range [0, {num_states-1}]")
+                for to_state in to_states:
+                    if not (0 <= to_state < num_states):
+                        raise ValueError(f"To state {to_state} in transition is out of range [0, {num_states-1}]")
+                if symbol != '#' and symbol not in alphabet:
+                    raise ValueError(f"Symbol '{symbol}' not in alphabet {alphabet}")
+
             self.nfa = NFA(
                 alphabet=alphabet,
                 numStates=num_states,
@@ -358,6 +374,12 @@ class NFAInputGUI:
 
         if input_str is None:
             input_str = ""
+
+        # validate input string
+        for ch in input_str:
+            if ch not in self.nfa.alphabet:
+                messagebox.showerror("Error", f"Input string contains symbol '{ch}' not in alphabet {self.nfa.alphabet}.")
+                return
 
         simulation_data = self.nfa.processString(input_str)
 
