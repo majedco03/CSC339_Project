@@ -13,7 +13,7 @@ class NFA:
         self.reset()
         self.simulationData = sd.SimulationData()
 
-    # check all current states and assign their lambda closures and record them
+    # check all current states and assign their lambda closures and record them (DFS approach)
     def lambdaClosure(self, states, currentStep=0):
         closure = set(states)
         stack = list(states)
