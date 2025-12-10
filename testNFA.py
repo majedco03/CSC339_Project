@@ -94,14 +94,14 @@ def test_complex_simulation():
     simulation = automaton.processString("abababa")
     
     expected_results = [
-        {0: {"symbol": None, "fromStates": set(), "toStates": {0, 1, 2}, "isAccepted": True}},
-        {1: {"symbol": 'a', "fromStates": {0, 1, 2}, "toStates": {0, 1, 2}, "isAccepted": True}},
-        {2: {"symbol": 'b', "fromStates": {0, 1, 2}, "toStates": {0, 1, 2}, "isAccepted": True}},
-        {3: {"symbol": 'a', "fromStates": {0, 1, 2}, "toStates": {0, 1, 2}, "isAccepted": True}},
-        {4: {"symbol": 'b', "fromStates": {0, 1, 2}, "toStates": {0, 1, 2}, "isAccepted": True}},
-        {5: {"symbol": 'a', "fromStates": {0, 1, 2}, "toStates": {0, 1, 2}, "isAccepted": True}},
-        {6: {"symbol": 'b', "fromStates": {0, 1, 2}, "toStates": {0, 1, 2}, "isAccepted": True}},
-        {7: {"symbol": 'a', "fromStates": {0, 1, 2}, "toStates": {0, 1, 2}, "isAccepted": True}}
+        {0: {"symbol": None, "fromStates": set(), "toStates": {0, 1, 2}, "isAccepted": True, "isLampda": False}},
+        {1: {"symbol": 'a', "fromStates": {0, 1, 2}, "toStates": {0, 1, 2}, "isAccepted": True, "isLampda": False}},
+        {2: {"symbol": 'b', "fromStates": {0, 1, 2}, "toStates": {0, 1, 2}, "isAccepted": True, "isLampda": False}},
+        {3: {"symbol": 'a', "fromStates": {0, 1, 2}, "toStates": {0, 1, 2}, "isAccepted": True, "isLampda": False}},
+        {4: {"symbol": 'b', "fromStates": {0, 1, 2}, "toStates": {0, 1, 2}, "isAccepted": True, "isLampda": False}},
+        {5: {"symbol": 'a', "fromStates": {0, 1, 2}, "toStates": {0, 1, 2}, "isAccepted": True, "isLampda": False}},
+        {6: {"symbol": 'b', "fromStates": {0, 1, 2}, "toStates": {0, 1, 2}, "isAccepted": True, "isLampda": False}},
+        {7: {"symbol": 'a', "fromStates": {0, 1, 2}, "toStates": {0, 1, 2}, "isAccepted": True, "isLampda": False}}
     ]
     
     actual_results = simulation.getResults()

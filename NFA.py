@@ -11,29 +11,35 @@ class NFA:
         self.transitions = transitions
         self.currentStates = set(startStates)
         self.reset()
+        self.simulationData = sd.SimulationData()
 
-    # lampda-closure (using '#' instead of its symbol)
-    def lambdaClosure(self, states: set[int]) -> set[int]:
-        stack = list(states)
+    # check all current states and assign their lambda closures and record them
+    def lambdaClosure(self, states, currentStep=0):
         closure = set(states)
+        stack = list(states)
 
         while stack:
             state = stack.pop()
             key = (state, '#')
-
             if key in self.transitions:
-                for nextState in self.transitions[key]:
-                    if nextState not in closure:
-                        closure.add(nextState)
-                        stack.append(nextState)
-
+                for nxt in self.transitions[key]:
+                    if nxt not in closure:
+                        prev_closure = closure.copy()
+                        closure.add(nxt)
+                        # Check acceptance for the current closure
+                        is_accepted = any(s in self.finalStates for s in closure)
+                        self.simulationData.recordLambdaMove(prev_closure, closure.copy(), is_accepted, currentStep)
+                        stack.append(nxt)
         return closure
+
+    
 
     def reset(self):
         # Start states + lambda closure
-        self.currentStates = self.lambdaClosure(set(self.startStates))
+        # Initial step is 0
+        self.currentStates = self.lambdaClosure(set(self.startStates), 0)
 
-    def move(self, symbol: str):
+    def move(self, symbol: str, currentStep=0):
         nextStates = set()
 
         for state in self.currentStates:
@@ -41,9 +47,13 @@ class NFA:
             if key in self.transitions:
                 for nxt in self.transitions[key]:
                     nextStates.add(nxt)
+        
+        # Record the move with the symbol
+        # Note: We record before lambda closure of the next states
+        self.simulationData.recordMove(symbol, set(self.currentStates), nextStates.copy(), self.isAccepted(), currentStep)
 
         # After moving with actual symbol, apply lambda closure again
-        self.currentStates = self.lambdaClosure(nextStates)
+        self.currentStates = self.lambdaClosure(nextStates, currentStep)
 
     def isAccepted(self):
         return any(state in self.finalStates for state in self.currentStates)
@@ -53,16 +63,10 @@ class NFA:
     
     # # This is the main function it will receive the input string and process it
     def processString(self, inputString):
-        self.reset()
-        simulation = sd.SimulationData()
-        step = 0
-        # Record initial state
-        print(f"Step {step}: Initial state: {self.currentStates}, accepted: {self.isAccepted()}")
-        simulation.recordMove(None, set(), self.currentStates.copy(), self.isAccepted(), step)
-        for symbol in inputString:
-            step += 1
-            fromStates = self.currentStates.copy()
-            self.move(symbol)
-            print(f"Step {step}: Processing '{symbol}': from {fromStates} to {self.currentStates}, accepted: {self.isAccepted()}")
-            simulation.recordMove(symbol, fromStates, self.currentStates.copy(), self.isAccepted(), step)
-        return simulation
+       step = 0
+         # Record initial state
+       self.simulationData.recordMove(None, set(), self.currentStates.copy(), self.isAccepted(), step)
+       for symbol in inputString:
+              step += 1
+              self.move(symbol, step)
+       return self.simulationData
