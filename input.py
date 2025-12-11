@@ -61,13 +61,13 @@ class NFAInputGUI:
 
         self.nfa: NFA | None = None
 
-        # Create frames with styling
+
         self.left_frame = tk.Frame(root, bg=self.bg_color)
         self.right_frame = tk.Frame(root, bg=self.bg_color)
         self.left_frame.pack(side=tk.LEFT, padx=20, pady=20, fill=tk.Y)
         self.right_frame.pack(side=tk.RIGHT, padx=20, pady=20, expand=True, fill=tk.BOTH)
 
-        # Canvas for NFA visualization with better background and scrollbars
+
         self.canvas_frame = tk.Frame(self.right_frame, bg=self.bg_color)
         self.canvas_frame.pack(expand=True, fill=tk.BOTH)
 
@@ -96,7 +96,7 @@ class NFAInputGUI:
 
         row = 0
 
-        # Input fields with improved styling
+
         tk.Label(self.left_frame, text="Alphabet (e.g., a,b,#):", bg=self.bg_color, fg=self.text_color, font=self.font_label).grid(row=row, column=0, sticky="w", pady=5)
         self.alphabet_entry = tk.Entry(self.left_frame, width=35, font=self.font_entry, relief=tk.FLAT, highlightthickness=1, highlightbackground="#000000", fg="white", bg="black", insertbackground="white")
         self.alphabet_entry.grid(row=row, column=1, pady=5, ipady=3)
@@ -138,7 +138,7 @@ class NFAInputGUI:
         self.run_button = tk.Button(self.left_frame, text="Run Simulation", command=self.run_simulation, font=self.font_header, highlightbackground="#007bff")
         self.run_button.grid(row=row, column=0, pady=10, sticky="ew")
 
-        # Navigation buttons
+        # navigation buttons
         self.nav_frame = tk.Frame(self.left_frame, bg=self.bg_color)
         self.nav_frame.grid(row=row, column=1, pady=10, sticky="e")
         
@@ -164,8 +164,7 @@ class NFAInputGUI:
 
         level_height = 80
         node_radius = 20
-        
-        # Identify all states at each step number up to current_step_index
+
         states_at_step = {} # step_num -> set of states
         
         for idx in range(self.current_step_index + 1):
@@ -178,7 +177,7 @@ class NFAInputGUI:
             
             # Add toStates
             states_at_step[step_num].update(data['toStates'])
-            # Add fromStates (needed for initial step or if fromStates has something not in toStates of prev)
+            # Add fromStates
             states_at_step[step_num].update(data['fromStates'])
 
         # Calculate positions
@@ -204,12 +203,12 @@ class NFAInputGUI:
                 x = (i + 1) * spacing
                 positions[(step_num, state)] = (x, y)
                 
-        # Draw the nodes 
+        # draw the nodes
         last_entry = self.simulation_results[self.current_step_index]
         last_step_num = list(last_entry.keys())[0]
         active_states = last_entry[last_step_num]['toStates']
         
-        # Colors
+        # colors
         COLOR_PAST_FILL = '#ffffff'
         COLOR_PAST_OUTLINE = '#000000'
         COLOR_CURRENT_FILL = '#ffffcc'
@@ -230,9 +229,8 @@ class NFAInputGUI:
                                     fill=fill, outline=outline, width=width)
             self.canvas.create_text(x, y, text=str(state), font=('Segoe UI', 10, 'bold'), fill=COLOR_TEXT)
             
-        # Draw the edges
-        drawn_edges = set() # Avoid duplicates
-        
+        # draw the edges
+        drawn_edges = set() #   avoid duplicates
         for idx in range(self.current_step_index + 1):
             step_dict = self.simulation_results[idx]
             step_num = list(step_dict.keys())[0]
@@ -248,7 +246,7 @@ class NFAInputGUI:
             source_step = step_num if symbol == '#' else step_num - 1
             
             if symbol != '#' and idx > 0:
-                 # Draw symbol label only once per step
+
                  if (step_num, symbol) not in drawn_edges:
                      y_level = 50 + step_num * level_height
                      self.canvas.create_text(30, y_level - level_height/2, text=f"'{symbol}'", font=('Segoe UI', 12, 'bold'), fill=COLOR_TEXT)
@@ -272,7 +270,7 @@ class NFAInputGUI:
                             dash = (4, 2) if symbol == '#' else ()
                             
                             if symbol == '#':
-                                # Horizontal
+
                                 if x1 < x2:
                                     self.canvas.create_line(x1+node_radius, y1, x2-node_radius, y2, 
                                                           arrow=tk.LAST, fill=COLOR_EDGE, width=1.5, dash=dash)
@@ -280,16 +278,16 @@ class NFAInputGUI:
                                     self.canvas.create_line(x1-node_radius, y1, x2+node_radius, y2, 
                                                           arrow=tk.LAST, fill=COLOR_EDGE, width=1.5, dash=dash)
                                 else:
-                                    # Self loop or vertical (shouldn't happen for lambda in same step)
+
                                     pass
                             else:
                                  self.canvas.create_line(x1, y1+node_radius, x2, y2-node_radius, 
                                                   arrow=tk.LAST, fill=COLOR_EDGE, width=1.5, smooth=True, dash=dash)
         
-        # Update scroll region
+
         self.canvas.config(scrollregion=self.canvas.bbox("all"))
                                                   
-        # Update scrollregion
+
         self.canvas.update_idletasks()
         bbox = self.canvas.bbox("all")
         if bbox:
@@ -309,11 +307,11 @@ class NFAInputGUI:
     def update_ui_for_step(self):
         self.draw_derivation_tree()
         
-        # Update buttons
+
         self.prev_button.config(state=tk.NORMAL if self.current_step_index > 0 else tk.DISABLED)
         self.next_button.config(state=tk.NORMAL if self.current_step_index < len(self.simulation_results) - 1 else tk.DISABLED)
         
-        # Highlight text
+
         self.output_text.tag_remove("highlight", "1.0", tk.END)
         # Calculate line number: step 0 is line 1, step 1 is line 2...
         line_num = self.current_step_index + 1
@@ -329,7 +327,7 @@ class NFAInputGUI:
             final_states = parse_int_list(self.final_states_entry.get())
             transitions = parse_transitions(self.transitions_text.get("1.0", tk.END))
 
-            # Validation
+            # validation
             for state in start_states:
                 if not (0 <= state < num_states):
                     raise ValueError(f"Start state {state} is out of range [0, {num_states-1}]")
@@ -353,7 +351,7 @@ class NFAInputGUI:
                 transitions=transitions
             )
 
-            # Reset simulation
+            #reset simulation
             self.simulation_results = []
             self.current_step_index = -1
             self.canvas.delete('all')
@@ -385,7 +383,8 @@ class NFAInputGUI:
 
         self.output_text.delete("1.0", tk.END)
         self.simulation_results = simulation_data.getResults()
-        
+
+        lastAccepted = False #To Track If Input Accepted Or No
         # Display text results
         for step_dict in self.simulation_results:
             step = list(step_dict.keys())[0]
@@ -398,6 +397,7 @@ class NFAInputGUI:
                 f"to = {data['toStates']}, "
                 f"accepted = {data['isAccepted']}\n"
             )
+            lastAccepted=data['isAccepted']
             self.output_text.insert(tk.END, line)
             
         # Start visualization at step 0
@@ -406,6 +406,11 @@ class NFAInputGUI:
             self.update_ui_for_step()
         else:
             self.current_step_index = -1
+
+        if(lastAccepted):
+            self.output_text.insert(tk.END,"Input Accepted")
+        else:
+            self.output_text.insert(tk.END,"Input Rejected")
 
 
 if __name__ == "__main__":
