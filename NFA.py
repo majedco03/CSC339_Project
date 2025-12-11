@@ -13,7 +13,7 @@ class NFA:
         self.reset()
         self.simulationData = sd.SimulationData()
 
-    # check all current states and assign their lambda closures and record them (DFS approach)
+
     def lambdaClosure(self, states, currentStep=0):
         closure = set(states)
         stack = list(states)
@@ -26,7 +26,6 @@ class NFA:
                     if nxt not in closure:
                         prev_closure = closure.copy()
                         closure.add(nxt)
-                        # Check acceptance for the current closure
                         is_accepted = any(s in self.finalStates for s in closure)
                         self.simulationData.recordLambdaMove(prev_closure, closure.copy(), is_accepted, currentStep)
                         stack.append(nxt)
@@ -35,8 +34,6 @@ class NFA:
     
 
     def reset(self):
-        # Start states + lambda closure
-        # Initial step is 0
         self.currentStates = self.lambdaClosure(set(self.startStates), 0)
 
     def move(self, symbol: str, currentStep=0):
@@ -47,10 +44,11 @@ class NFA:
             if key in self.transitions:
                 for nxt in self.transitions[key]:
                     nextStates.add(nxt)
-        
-        # Record the move with the symbol
-        # Note: We record before lambda closure of the next states
-        self.simulationData.recordMove(symbol, set(self.currentStates), nextStates.copy(), self.isAccepted(), currentStep)
+
+
+        #to Know If Accepteed Or Not Accepted
+        isAccep = any(state in self.finalStates for state in nextStates)
+        self.simulationData.recordMove(symbol, set(self.currentStates), nextStates.copy(), isAccep,currentStep)
 
         # After moving with actual symbol, apply lambda closure again
         self.currentStates = self.lambdaClosure(nextStates, currentStep)
@@ -61,7 +59,7 @@ class NFA:
     def getCurrentStates(self) -> set[int]:
         return self.currentStates
     
-    # # This is the main function it will receive the input string and process it
+    # # This is the main function it will receive the input string and proccess it
     def processString(self, inputString):
        step = 0
          # Record initial state
